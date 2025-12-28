@@ -9,6 +9,7 @@
       ./sys-modules/nvidia-conf.nix
       ./sys-modules/mediawiki-conf.nix
       ./sys-modules/office-conf.nix
+      ./sys-modules/remove-old-generations.nix
       ./sys-modules/steam-conf.nix
     ];
 
