@@ -11,6 +11,7 @@
       ./sys-modules/office-conf.nix
       ./sys-modules/remove-old-generations.nix
       ./sys-modules/steam-conf.nix
+      ./sys-modules/coding-tools-conf.nix
     ];
 
   # Bootloader.
@@ -80,6 +81,11 @@
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
+    settings = {
+      Policy = {
+        AutoEnable = "true";
+      };
+    };
   };
 
   # Enable sound with pipewire.
