@@ -19,6 +19,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
+    
+    nixcord = {
+      url = "github:FlameFlag/nixcord";
+    };
   };
 
   outputs = inputs@{ nixpkgs, home-manager, plasma-manager, rust-overlay, ... }:
@@ -56,6 +60,7 @@
                 # Your Modules
                 ./flake-modules/nvim.nix
                 ./flake-modules/rust.nix
+		./flake-modules/discord.nix
                 # ./flake-modules/plasma.nix
               ];
 

@@ -140,7 +140,6 @@
     spotify
     pkgs.slack
     pkgs.cifs-utils
-    pkgs.vesktop
     localsend
     direnv
     (python3.withPackages (python-pkgs: with python-pkgs; [
