@@ -1,41 +1,44 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [ 
-      ./sys-modules/hardware-configuration.nix
-      ./sys-modules/librewolf-conf.nix 
-      ./sys-modules/gp-conf.nix
-      ./sys-modules/nvidia-conf.nix
-      ./sys-modules/mediawiki-conf.nix
-      ./sys-modules/office-conf.nix
-      ./sys-modules/remove-old-generations.nix
-      ./sys-modules/steam-conf.nix
-      ./sys-modules/coding-tools-conf.nix
-    ];
+  imports = [
+    ./sys-modules/hardware-configuration.nix
+    ./sys-modules/librewolf-conf.nix
+    ./sys-modules/gp-conf.nix
+    ./sys-modules/nvidia-conf.nix
+    ./sys-modules/mediawiki-conf.nix
+    ./sys-modules/office-conf.nix
+    ./sys-modules/remove-old-generations.nix # Note: Check if native nix.gc options below overlap with this
+    ./sys-modules/steam-conf.nix
+    ./sys-modules/coding-tools-conf.nix
+  ];
 
-  # Bootloader.
+  # --- Nix & System Management ---
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    auto-optimise-store = true; # Automatically links identical files to save disk space
+  };
+
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
+
+  nixpkgs.config.allowUnfree = true;
+  system.stateVersion = "26.05";
+
+  # --- Bootloader ---
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "ryan-nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Enable networking
+  # --- Networking ---
+  networking.hostName = "ryan-nixos";
   networking.networkmanager.enable = true;
 
-  # Enable auto garbage collection
-  nix.gc.automatic = true;
-
-  # Set your time zone.
+  # --- Localization & Time ---
   time.timeZone = "America/Chicago";
-
-  # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
-
   i18n.extraLocaleSettings = {
     LC_ADDRESS = "en_US.UTF-8";
     LC_IDENTIFICATION = "en_US.UTF-8";
@@ -48,47 +51,34 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  # Enable the X11 windowing system.
-  # You can disable this if you're only using the Wayland session.
-  # Required X11 for RDP
-  services.xserver.enable = false;
-
-  # Enable RDP
-  # services.xrdp = {
-    # defaultWindowManager = "startplasma-x11";
-    # enable = true;
-    # openFirewall = true;
-  # };
-
-  # Enable the KDE Plasma Desktop Environment.
+  # --- Desktop Environment & Window Manager ---
+  services.xserver.enable = false; # Disabled since you are running Wayland-native Plasma 6
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
 
-  # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
     variant = "";
   };
 
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
+  # --- Hardware & Firmware ---
+  hardware.enableRedistributableFirmware = true;
+  hardware.enableAllFirmware = true;
+  powerManagement.cpuFreqGovernor = "performance";
 
-  # Enable Logitech Software
+  # Logitech
   hardware.logitech.wireless.enable = true;
   hardware.logitech.wireless.enableGraphical = true;
 
-  # Enable bluetooth
+  # Bluetooth
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
-    settings = {
-      Policy = {
-        AutoEnable = "true";
-      };
-    };
+    settings.Policy.AutoEnable = "true";
   };
 
-  # Enable sound with pipewire.
+  # --- Audio & Printing ---
+  services.printing.enable = true;
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -96,50 +86,33 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
   };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
+  # --- User Accounts ---
   users.users.ryanson = {
     isNormalUser = true;
     description = "ryanson";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
       kdePackages.kate
-    #  thunderbird
     ];
   };
 
-  # Install firefox.
+  # --- Programs & Environment ---
   programs.firefox.enable = true;
   programs.kdeconnect.enable = true;
+  environment.variables.EDITOR = "nvim";
 
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-  hardware.enableRedistributableFirmware = true;
-  hardware.enableAllFirmware = true;
-
-  # CPU performance
-  powerManagement.cpuFreqGovernor = "performance"; 
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
+  # System-wide Packages
   environment.systemPackages = with pkgs; [
-    neovim # Neovim installation
-    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    neovim
+    vim
     wget
     git
     spotify
-    pkgs.slack
-    pkgs.cifs-utils
+    slack
+    cifs-utils
+    sbctl
     localsend
     direnv
     (python3.withPackages (python-pkgs: with python-pkgs; [
@@ -148,47 +121,16 @@
     ]))
   ];
 
-  programs.nix-ld.enable = true;
-  programs.nix-ld.libraries = with pkgs; [
-    openssl
-    xorg.libX11
-    xorg.libXcursor
-    xorg.libXrandr
-    xorg.libXi
-    libGL
-    # Add any other libraries typical binaries might need
-  ];
-
-  # Setting default editor
-  environment.variables.EDITOR = "nvim";
-
-  # Experimental features
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "26.05"; # Did you read the comment?
+  # Dynamic Linker for non-Nix binaries
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      openssl
+      xorg.libX11
+      xorg.libXcursor
+      xorg.libXrandr
+      xorg.libXi
+      libGL
+    ];
+  };
 }

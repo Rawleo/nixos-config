@@ -1,5 +1,5 @@
 {
-  description = "NixOS Home Manager & Plasma Manager Configuration";
+  description = "NixOS Home Manager, Plasma Manager & SecureBoot Configuration";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -19,13 +19,19 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
-    
+
     nixcord = {
       url = "github:FlameFlag/nixcord";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote/v1.1.0";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = inputs@{ nixpkgs, home-manager, plasma-manager, rust-overlay, ... }:
+  outputs = inputs@{ nixpkgs, home-manager, rust-overlay, lanzaboote, ... }:
     let
       # --- Configuration Variables ---
       system = "x86_64-linux";
@@ -35,63 +41,42 @@
     {
       nixosConfigurations."${hostname}" = nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit inputs; };
+        specialArgs = { inherit inputs hostname username; };
 
         modules = [
           # Main NixOS Configuration
           ./configuration.nix
 
+          # SecureBoot (Lanzaboote) Module & Configuration
+          lanzaboote.nixosModules.lanzaboote
+          ({ pkgs, lib, ... }: {
+            environment.systemPackages = [
+              pkgs.sbctl # For debugging and troubleshooting Secure Boot
+            ];
+
+            # Lanzaboote replaces systemd-boot, force disable it here
+            boot.loader.systemd-boot.enable = lib.mkForce false;
+
+            boot.lanzaboote = {
+              enable = true;
+              pkiBundle = "/var/lib/sbctl";
+            };
+          })
+
+          # Global Nixpkgs & Overlays Configuration
+          {
+            nixpkgs.overlays = [ rust-overlay.overlays.default ];
+          }
+
           # Home Manager Module
           home-manager.nixosModules.home-manager
           {
-            nixpkgs.overlays = [ rust-overlay.overlays.default ];
-
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.extraSpecialArgs = { inherit inputs; };
 
-            # Home Manager User Configuration
-            home-manager.users."${username}" = { pkgs, ... }: {
-              
-              imports = [
-                # Plasma Manager Module
-                plasma-manager.homeModules.plasma-manager
-                
-                # Your Modules
-                ./flake-modules/nvim.nix
-                ./flake-modules/rust.nix
-		./flake-modules/discord.nix
-                # ./flake-modules/plasma.nix
-              ];
-
-              home = {
-                inherit username;
-                homeDirectory = "/home/${username}";
-                stateVersion = "26.05";
-              };
-
-              programs.git = {
-                enable = true;
-                settings = {
-                  user = {
-                    name = "Rawleo";
-                    email = "sonryan50@gmail.com";
-                  };
-                  init = {
-                    defaultBranch = "main";
-                  };
-                  safe = {
-                    directory = "/etc/nixos";
-                  };
-                };
-              };
-
-              # Autostart Solaar when your desktop session loads
-              xdg.autostart.enable = true;
-              xdg.autostart.entries = [
-                "${pkgs.solaar}/share/applications/solaar.desktop"
-              ];
-            };
+            # Point Home Manager directly to your home.nix file
+            home-manager.users."${username}" = import ./flake-modules/home.nix;
           }
         ];
       };
