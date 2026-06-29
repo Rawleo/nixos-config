@@ -2,8 +2,8 @@
 
 {
   programs.neovim = {
-    enable = true;
-    defaultEditor = true;
+    enable = false;
+    defaultEditor = false;
 
     # We use 'with pkgs;' to make the list cleaner
     extraPackages = with pkgs; [

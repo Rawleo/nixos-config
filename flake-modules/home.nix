@@ -3,10 +3,12 @@
   # User-specific module imports
   imports = [
     inputs.plasma-manager.homeModules.plasma-manager
-    ./nvim.nix
+    inputs.lazyvim.homeManagerModules.default
+    #./nvim.nix
     ./rust.nix
     ./discord.nix
     ./ghostty.nix
+    ./lazyvim.nix
     # ./plasma.nix
   ];
 

@@ -29,9 +29,13 @@
       url = "github:nix-community/lanzaboote/v1.1.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    lazyvim = {
+      url = "github:pfassina/lazyvim-nix/v15.13.0";
+    };
   };
 
-  outputs = inputs@{ nixpkgs, home-manager, rust-overlay, lanzaboote, ... }:
+  outputs = inputs@{ nixpkgs, home-manager, lazyvim, nixcord, plasma-manager, rust-overlay, lanzaboote, ... }:
     let
       # --- Configuration Variables ---
       system = "x86_64-linux";
