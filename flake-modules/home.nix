@@ -6,6 +6,7 @@
     ./nvim.nix
     ./rust.nix
     ./discord.nix
+    ./ghostty.nix
     # ./plasma.nix
   ];
 
