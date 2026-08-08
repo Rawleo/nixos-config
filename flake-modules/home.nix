@@ -9,6 +9,7 @@
     ./discord.nix
     ./ghostty.nix
     ./lazyvim.nix
+    ./starship.nix
     # ./plasma.nix
   ];
 
@@ -17,6 +18,11 @@
     username = "ryanson";
     homeDirectory = "/home/ryanson";
     stateVersion = "26.05";
+
+    packages = with pkgs; [
+      fetch
+      starship
+    ];
   };
 
   # Git configuration
