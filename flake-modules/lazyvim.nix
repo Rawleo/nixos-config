@@ -10,15 +10,16 @@
       lang.nix.enable = true;
       lang.python = {
         enable = true;
-        installDependencies = true;        # Install ruff
-        installRuntimeDependencies = true; # Install python3
+        installDependencies = true;
+        installRuntimeDependencies = true;
       };
     };
 
     extraPackages = with pkgs; [
-      nixd       # Nix LSP
-      alejandra  # Nix formatter
+      nixd
+      alejandra
       tree-sitter
+      statix
     ];
   };
 }

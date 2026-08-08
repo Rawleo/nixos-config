@@ -19,6 +19,12 @@
     auto-optimise-store = true; # Automatically links identical files to save disk space
   };
 
+  # --- Boot Params for Suspend ---
+  boot.kernelParams = [
+    "acpi_osi=!"
+    ''acpi_osi="Windows 2013"''
+  ];
+
   nix.gc = {
     automatic = true;
     dates = "weekly";
