@@ -23,6 +23,7 @@
       fetch
       starship
       vial
+      yazi
     ];
   };
 
@@ -31,7 +32,7 @@
     enable = true;
     userName = "Rawleo";
     userEmail = "sonryan50@gmail.com";
-    extraConfig = {
+    settings = {
       init.defaultBranch = "main";
       safe.directory = "/etc/nixos";
     };

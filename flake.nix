@@ -55,10 +55,9 @@
           lanzaboote.nixosModules.lanzaboote
           ({ pkgs, lib, ... }: {
             environment.systemPackages = [
-              pkgs.sbctl # For debugging and troubleshooting Secure Boot
+              pkgs.sbctl
             ];
 
-            # Lanzaboote replaces systemd-boot, force disable it here
             boot.loader.systemd-boot.enable = lib.mkForce false;
 
             boot.lanzaboote = {
@@ -75,12 +74,14 @@
           # Home Manager Module
           home-manager.nixosModules.home-manager
           {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              extraSpecialArgs = { inherit inputs; };
 
-            # Point Home Manager directly to your home.nix file
-            home-manager.users."${username}" = import ./flake-modules/home.nix;
+              # Import home.nix
+              users."${username}" = import ./flake-modules/home.nix;
+            };
           }
         ];
       };
