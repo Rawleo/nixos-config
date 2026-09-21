@@ -24,6 +24,7 @@
       starship
       vial
       yazi
+      zsh-autosuggestions
     ];
   };
 
