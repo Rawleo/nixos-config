@@ -69,7 +69,6 @@
     enableAllFirmware = true;
     logitech.wireless = {
       enable = true;
-      enableGraphical = true;
     };
     bluetooth = {
       enable = true;
