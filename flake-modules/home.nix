@@ -4,6 +4,7 @@
   imports = [
     inputs.plasma-manager.homeModules.plasma-manager
     inputs.lazyvim.homeManagerModules.default
+    ./ble.nix
     #./nvim.nix
     ./rust.nix
     ./discord.nix
@@ -31,9 +32,11 @@
   # Git configuration
   programs.git = {
     enable = true;
-    userName = "Rawleo";
-    userEmail = "sonryan50@gmail.com";
     settings = {
+      user = {
+        name = "Rawleo";
+        email = "sonryan50@gmail.com";
+      };
       init.defaultBranch = "main";
       safe.directory = "/etc/nixos";
     };
