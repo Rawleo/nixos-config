@@ -5,8 +5,10 @@
   programs.bash = {
     enable = true;
     bashrcExtra = ''
-      [[ $- == *i* ]] && source -- "$(blesh-share)"/ble.sh --attach=none
-      ...
+      [[ $- == *i* ]] && source -- "${pkgs.blesh}/share/blesh/ble.sh" --attach=none
+
+      # Your other bashrc settings here...
+
       [[ ! ''${BLE_VERSION-} ]] || ble-attach
     '';
   };

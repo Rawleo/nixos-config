@@ -22,6 +22,7 @@
 
     packages = with pkgs; [
       fetch
+      solaar
       starship
       vial
       yazi

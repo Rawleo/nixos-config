@@ -17,8 +17,8 @@
       # ── Appearance ─────────────────────────────────────────────
       theme = "Catppuccin Frappe";
 
-      background-opacity = "0.92";
-      background-blur-radius = "20";
+      background-opacity = 0.92;
+      background-blur-radius = 20;
 
       font-family = "JetBrains Mono";
       font-size = 14;
@@ -53,4 +53,3 @@
     };
   };
 }
-
